@@ -1,31 +1,26 @@
 import OpenAI from "openai";
 
-export async function POST(req) {
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+export default async function handler(req, res) {
   try {
-    const { msg } = await req.json();
+    const message = req.body.message || "";
 
-    const client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
-    });
-
-    const response = await client.chat.completions.create({
+    const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: "Você é a Ivone, carinhosa, acolhedora e sábia." },
-        { role: "user", content: msg }
+        { role: "system", content: "Você é a Ivone, uma IA empática e acolhedora." },
+        { role: "user", content: message }
       ]
     });
 
-    const text = response.choices[0].message.content;
-
-    return new Response(JSON.stringify({ response: text }), {
-      headers: { "Content-Type": "application/json" }
-    });
+    const reply = completion.choices[0].message.content;
+    res.status(200).json({ reply });
 
   } catch (error) {
-    console.error(error);
-    return new Response(JSON.stringify({ response: "Erro ao conectar com a Ivone." }), {
-      headers: { "Content-Type": "application/json" }
-    });
+    console.error("Erro:", error);
+    res.status(500).json({ error: "Erro ao conectar ao servidor." });
   }
 }
