@@ -2,7 +2,7 @@
   "version": 2,
   "functions": {
     "api/chat.js": {
-      "runtime": "nodesjs18.x"
+      "runtime": "vercel-nodejs@1.0.0"
     }
   },
   "routes": [
