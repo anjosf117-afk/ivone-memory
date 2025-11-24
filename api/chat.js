@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     const message = req.body.message || "";
 
     const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-40-mini",
       messages: [
         { role: "system", content: "Você é a Ivone, uma IA empática e acolhedora." },
         { role: "user", content: message }
