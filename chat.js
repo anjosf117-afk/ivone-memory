@@ -1,6 +1,6 @@
 
 export default async function handler(req, res) {
-  // Simple in-memory memory (resets each deploy)
+  // Simple in-memory memory
   global.memory = global.memory || [];
 
   if (req.method === "POST") {
