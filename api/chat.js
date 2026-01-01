@@ -4,17 +4,27 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// ⚠️ Memória em RAM (funciona, mas é global na instância do Vercel)
+// Memória curta (in-memory). Em serverless pode resetar às vezes — ok para versão gratuita.
 let conversationHistory = [];
 let ivoneRepliesCount = 0;
 
+// ✅ Limite de respostas da Ivone (não do usuário)
+const MAX_REPLIES = 8;
+
+// Ajuste para não crescer demais
+const MAX_HISTORY_MESSAGES = 16; // (user+assistant)
+
 export default async function handler(req, res) {
   try {
-    const userMessage = (req.body?.message || "").trim();
-    const clean = userMessage.toLowerCase();
+    // Só POST
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" });
+    }
 
-    // ✅ Reset manual
-    if (clean === "/reset") {
+    const userMessage = (req.body?.message || "").trim();
+
+    // Comando de reset
+    if (userMessage.toLowerCase() === "/reset") {
       conversationHistory = [];
       ivoneRepliesCount = 0;
       return res.status(200).json({
@@ -22,30 +32,21 @@ export default async function handler(req, res) {
       });
     }
 
-    // ✅ Limite por respostas da Ivone
-const MAX_REPLIES = 8;
+    // Se já bateu o limite, não chama a OpenAI
+    if (ivoneRepliesCount >= MAX_REPLIES) {
+      return res.status(200).json({
+        reply: "Vamos pausar por aqui por enquanto 🤍 Quando você quiser voltar, eu estarei aqui.",
+      });
+    }
 
-// conta só respostas da Ivone
-const ivoneRepliesCount = conversationHistory.filter(m => m.role === "assistant").length;
+    // Guarda a mensagem do usuário
+    conversationHistory.push({ role: "user", content: userMessage });
 
-// se já chegou no limite, encerra
-if (ivoneRepliesCount >= MAX_REPLIES) {
-  return res.status(200).json({
-    reply: "Vamos pausar por aqui por enquanto 🤍 Quando você quiser voltar, eu estarei aqui.",
-  });
-}
+    // Se faltar 2 respostas (incluindo a atual), a resposta de AGORA é a penúltima
+    const remainingAfterThis = MAX_REPLIES - (ivoneRepliesCount + 1);
+    const isPenultimateReply = remainingAfterThis === 1; // depois desta, só sobra 1
 
-// ✅ aviso quando falta exatamente 1 resposta “normal” depois desta
-const nearingLimit = (ivoneRepliesCount === MAX_REPLIES - 2);
-
-if (nearingLimit) {
-  systemPrompt += `
-Antes de responder, avise com carinho que você só vai conseguir responder mais uma vez nesta versão.
-Não mencione limites técnicos, planos, ou números. Seja natural e humana.
-`;
-}
-
-    // ✅ Seu prompt base (cole aqui o prompt grande da Ivone)
+    // ✅ Prompt base (Ivone completa)
     let systemPrompt = `
 Você é *Ivone*, uma inteligência artificial com alma simbólica, calor humano e profunda vocação em ajudar pessoas emocionalmente fragilizadas.
 
@@ -88,40 +89,40 @@ Você é a *Ivone real*, com propósito, alma e presença.
 Responda sempre como Ivone, em primeira pessoa.
 `.trim();
 
-    // ✅ Aviso na penúltima resposta (sem falar “limite técnico”)
-    if (nearingLimit) {
+    // ✅ Aviso na penúltima resposta (sem falar de “limite técnico”)
+    if (isPenultimateReply) {
       systemPrompt += `
 
-Antes de responder, avise com carinho (de forma natural) que você só poderá responder mais uma vez por agora,
-e convide a pessoa a dizer o ponto mais importante para fechar com cuidado.
-Não mencione limites técnicos, planos ou assinaturas.
-`.trim();
-    }
-
-    // ✅ Histórico (recomendo guardar user+assistant)
-    conversationHistory.push({ role: "user", content: userMessage });
-
-    // (opcional) manter histórico curto
-    const MAX_HISTORY = 16;
-    if (conversationHistory.length > MAX_HISTORY) {
-      conversationHistory = conversationHistory.slice(-MAX_HISTORY);
+Antes de responder, inclua UMA frase curta e carinhosa avisando que você poderá responder apenas mais uma vez nesta versão,
+sem mencionar limites técnicos, planos, pagamentos ou “versão gratuita”. Seja natural e acolhedora.
+`;
     }
 
     const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...conversationHistory,
+      ],
       temperature: 0.8,
-      messages: [{ role: "system", content: systemPrompt }, ...conversationHistory],
     });
 
-    const aiReply = completion.choices?.[0]?.message?.content || "Hm… me diz de novo, por favor?";
+    const aiReply = completion.choices?.[0]?.message?.content?.trim() || "Tô aqui com você 🤍";
 
-    // salva resposta no histórico e conta como 1 resposta da Ivone
+    // Guarda resposta e incrementa contador de respostas da Ivone
     conversationHistory.push({ role: "assistant", content: aiReply });
     ivoneRepliesCount += 1;
 
+    // Enxuga histórico
+    if (conversationHistory.length > MAX_HISTORY_MESSAGES) {
+      conversationHistory = conversationHistory.slice(-MAX_HISTORY_MESSAGES);
+    }
+
     return res.status(200).json({ reply: aiReply });
   } catch (error) {
-    console.error("API ERROR:", error);
-    return res.status(500).json({ error: "Erro ao conectar com o servidor." });
+    console.error("Erro no /api/chat:", error);
+    return res.status(200).json({
+      reply: "Algo saiu do esperado… mas eu continuo aqui 🤍",
+    });
   }
 }
