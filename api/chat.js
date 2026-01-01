@@ -11,6 +11,16 @@ export default async function handler(req, res) {
   try {
     const userMessage = req.body.message || "";
 
+    const clean = (userMessage || "").trim().toLowerCase();
+
+if (clean === "/reset") {
+  conversationHistory = [];
+  ivoneRepliesCount = 0;
+  return res.status(200).json({
+    reply: "Pronto 🤍 Recomeçamos do zero. Pode me dizer como você está agora?",
+  });
+}
+
     // Guardar as últimas 8 mensagens (para não sobrecarregar)
     conversationHistory.push({ role: "user", content: userMessage });
     if (conversationHistory.length > 8) {
