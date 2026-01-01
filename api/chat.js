@@ -91,13 +91,16 @@ Use uma linguagem acolhedora, consciente e humana, sem mencionar limites técnic
 
     const aiReply = completion.choices[0].message.content;
 
-    // Guardar resposta da Ivone também
-    conversationHistory.push({ role: "assistant", content: aiReply });
+   // Incrementa contador da Ivone
+    ivoneRepliesCount += 1;
 
-    res.status(200).json({ reply: aiReply });
-
+    return res.status(200).json({
+      reply: aiReply,
+    });
   } catch (error) {
     console.error("Erro no servidor:", error);
-    res.status(500).json({ error: "Erro ao conectar ao servidor." });
+    return res.status(500).json({
+      reply: "Algo saiu do esperado… mas eu continuo aqui 🤍",
+    });
   }
 }
