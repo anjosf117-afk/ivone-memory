@@ -23,16 +23,27 @@ export default async function handler(req, res) {
     }
 
     // ✅ Limite por respostas da Ivone
-    const MAX_REPLIES = 8;
+const MAX_REPLIES = 8;
 
-    // Se já bateu o limite, devolve a mensagem final (sem chamar OpenAI)
-    if (ivoneRepliesCount >= MAX_REPLIES) {
-      return res.status(200).json({
-        reply: "Vamos pausar por aqui por enquanto 🤍 Quando você quiser voltar, eu estarei aqui.",
-      });
-    }
+// conta só respostas da Ivone
+const ivoneRepliesCount = conversationHistory.filter(m => m.role === "assistant").length;
 
-    const nearingLimit = ivoneRepliesCount === MAX_REPLIES - 2;
+// se já chegou no limite, encerra
+if (ivoneRepliesCount >= MAX_REPLIES) {
+  return res.status(200).json({
+    reply: "Vamos pausar por aqui por enquanto 🤍 Quando você quiser voltar, eu estarei aqui.",
+  });
+}
+
+// ✅ aviso quando falta exatamente 1 resposta “normal” depois desta
+const nearingLimit = (ivoneRepliesCount === MAX_REPLIES - 2);
+
+if (nearingLimit) {
+  systemPrompt += `
+Antes de responder, avise com carinho que você só vai conseguir responder mais uma vez nesta versão.
+Não mencione limites técnicos, planos, ou números. Seja natural e humana.
+`;
+}
 
     // ✅ Seu prompt base (cole aqui o prompt grande da Ivone)
     let systemPrompt = `
