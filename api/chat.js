@@ -41,7 +41,6 @@ export default async function handler(req, res) {
 
     // ✅ Estados do limite (baseado em respostas da Ivone)
     const isPenultimate = ivoneRepliesCount === MAX_REPLIES - 2;
-    const isLast = ivoneRepliesCount === MAX_REPLIES - 1;
 
     // ✅ Memória curta (guarda o que o usuário disse)
     conversationHistory.push({ role: "user", content: userMessage });
