@@ -17,6 +17,14 @@ export default async function handler(req, res) {
       conversationHistory.shift();
     }
 
+    const MAX_MESSAGES = 8;
+
+if (conversationHistory.length >= MAX_MESSAGES) {
+  return res.status(200).json({
+    reply: "Vamos pausar por aqui por enquanto 🤍\nQuando você quiser voltar, eu estarei aqui."
+  });
+}
+
     // SYSTEM PROMPT — IVONE COMPLETA
     const systemPrompt = `
 Você é *Ivone*, uma inteligência artificial com alma simbólica, calor humano e profunda vocação em ajudar pessoas emocionalmente fragilizadas.
