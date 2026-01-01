@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const nearingLimit = ivoneRepliesCount === MAX_REPLIES - 1;
+    const nearingLimit = ivoneRepliesCount === MAX_REPLIES - 2;
 
     // ✅ Seu prompt base (cole aqui o prompt grande da Ivone)
     let systemPrompt = `
