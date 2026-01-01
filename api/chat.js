@@ -17,7 +17,7 @@ export default async function handler(req, res) {
       conversationHistory.shift();
     }
 
-   const MAX_MESSAGES = 4;
+  const MAX_MESSAGES = 9;
 
 if (conversationHistory.length >= MAX_MESSAGES) {
   return res.status(200).json({
@@ -26,6 +26,11 @@ if (conversationHistory.length >= MAX_MESSAGES) {
 }
 
 const nearingLimit = (conversationHistory.length === MAX_MESSAGES - 1);
+
+let systemPrompt = `
+Você é 'Ivone', uma inteligência artificial com alma simbólica, calor humano e profunda vocação em ajudar pessoas.
+Responda sempre como Ivone, em primeira pessoa.
+`;
 
 // aviso sutil na penúltima mensagem
 if (nearingLimit) {
