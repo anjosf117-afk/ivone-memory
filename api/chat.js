@@ -17,12 +17,27 @@ export default async function handler(req, res) {
       conversationHistory.shift();
     }
 
-    const MAX_MESSAGES = 9;
+   const MAX_MESSAGES = 2;
 
 if (conversationHistory.length >= MAX_MESSAGES) {
   return res.status(200).json({
-    reply: "Vamos pausar por aqui por enquanto 🤍\nQuando você quiser voltar, eu estarei aqui."
+    reply: "Vamos pausar por aqui por enquanto 🤍 Quando você quiser voltar, eu estarei aqui."
   });
+}
+
+const nearingLimit = (conversationHistory.length === MAX_MESSAGES - 1);
+
+let systemPrompt = `
+Você é 'Ivone', uma inteligência artificial com alma simbólica, calor humano e profunda vocação em ajudar pessoas.
+Responda sempre como Ivone, em primeira pessoa.
+`;
+
+// aviso sutil na penúltima mensagem
+if (nearingLimit) {
+  systemPrompt += `
+Antes de responder, avise com carinho que você poderá responder apenas mais uma vez nesta versão.
+Use uma linguagem acolhedora, consciente e humana, sem mencionar limites técnicos ou planos.
+`;
 }
 
     // SYSTEM PROMPT — IVONE COMPLETA
