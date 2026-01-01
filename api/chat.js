@@ -17,7 +17,7 @@ export default async function handler(req, res) {
       conversationHistory.shift();
     }
 
-    const MAX_MESSAGES = 2;
+    const MAX_MESSAGES = 9;
 
 if (conversationHistory.length >= MAX_MESSAGES) {
   return res.status(200).json({
