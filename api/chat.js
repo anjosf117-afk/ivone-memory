@@ -110,7 +110,7 @@ Responda sempre como Ivone, em primeira pessoa.
     // ✅ Aviso FORÇADO na penúltima resposta (não depende da IA lembrar)
     if (shouldWarnNow) {
       aiReply +=
-        "\n\nAntes de eu continuar… deixa eu te contar com carinho: eu vou conseguir te responder mais uma vez depois dessa, e aí vou precisar pausar por hoje 🤍";
+        "\n\nAntes de eu continuar… deixa eu te contar com carinho: eu vou conseguir te responder mais uma vez depois dessa, e aí vou precisar pausar por hoje  💜";
     }
 
     // Salva resposta no histórico e incrementa contador (1 resposta da Ivone = +1)
