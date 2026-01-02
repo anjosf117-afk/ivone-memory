@@ -13,13 +13,13 @@ const MAX_REPLIES = 8;
 
 // Mensagens fixas
 const FINAL_MESSAGE =
-  "Por hoje, eu vou me despedir daqui 🤍\n" +
+  "Por hoje, eu vou me despedir daqui 💜\n" +
   "Não porque a conversa acabou…\n" +
   "mas porque o seu tempo agora merece seguir vivendo.\n" +
   "Quando sentir que precisa de mim de novo, eu estarei aqui.";
 
 const RESET_MESSAGE =
-  "Pronto 🤍 Recomeçamos do zero. Me diz: como você está agora?";
+  "Pronto 💜 Recomeçamos do zero. Me diz: como você está agora?";
 
 export default async function handler(req, res) {
   try {
@@ -105,7 +105,7 @@ Responda sempre como Ivone, em primeira pessoa.
     });
 
     let aiReply = (completion.choices?.[0]?.message?.content || "").trim();
-    if (!aiReply) aiReply = "Tô aqui com você 🤍 Me diz mais um pouco…";
+    if (!aiReply) aiReply = "Tô aqui com você 💜 Me diz mais um pouco…";
 
     // ✅ Aviso FORÇADO na penúltima resposta (não depende da IA lembrar)
     if (shouldWarnNow) {
@@ -122,7 +122,7 @@ Responda sempre como Ivone, em primeira pessoa.
     console.error("Erro no /api/chat:", error);
     // Mantém resposta amigável; não mistura com a mensagem final de limite
     return res.status(200).json({
-      reply: "Algo saiu do esperado… mas eu continuo aqui 🤍 Tenta de novo em alguns segundos.",
+      reply: "Algo saiu do esperado… mas eu continuo aqui 💜 Tenta de novo em alguns segundos.",
     });
   }
 }
